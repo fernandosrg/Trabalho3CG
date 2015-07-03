@@ -28,7 +28,7 @@ import util.ArrayData;
 
 
 public class Window implements Runnable, ActionListener {  
-	JFrame f=new JFrame();//creating instance of JFrame 
+	JFrame frame =new JFrame();//creating instance of JFrame 
 	
 	JMenuBar menuBar = new JMenuBar();
 	JMenu fileMenu= new JMenu("File");
@@ -71,121 +71,146 @@ public class Window implements Runnable, ActionListener {
 				//JButton b=new JButton("click");//creating instance of JButton  
 				//b.setBounds(130,100,100, 40);//x axis, y axis, width, height  
 
-			    openMenuItem.addActionListener(this);  //botar oq tem q fazer
-				saveMenuItem.addActionListener(this);
-				convoMenuItem.addActionListener(this);
-				cropMenuItem.addActionListener(this);
-				sepiaMenuItem.addActionListener(this);
+				prepareMenus();
 				
-				CropMouseListener cropMouseListener = new CropMouseListener();
-				panel.addMouseListener(cropMouseListener);
-				panel.addMouseMotionListener(cropMouseListener);
+				createCropMouseListener();
 				
 				panel.setSize(600,600);
 				
-				fileMenu.add(openMenuItem);
-				fileMenu.add(saveMenuItem);
-				editMenu.add(convoMenuItem);
-				editMenu.add(cropMenuItem);
-				editMenu.add(sepiaMenuItem);
-				
-				menuBar.add(fileMenu);
-				menuBar.add(editMenu);
-				menuBar.setSize(600, 20);
-				
-				f.setTitle("Trab 3 - Felipe e Fernando"); // goyzice
-				f.setLayout(new BorderLayout()); // sei la n�o sei oq � melhor
-				f.getContentPane().add(menuBar, BorderLayout.PAGE_START);
-				f.getContentPane().add(panel, BorderLayout.CENTER);//adding button in JFrame
-				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	          
-				f.setSize(600,600); //  tamanho padr�o 
-				f.setVisible(true);//making the frame visible  
+				frame.setTitle("Trab 3 - Felipe e Fernando"); // goyzice
+				frame.setLayout(new BorderLayout()); // sei la n�o sei oq � melhor
+				frame.getContentPane().add(menuBar, BorderLayout.PAGE_START);
+				frame.getContentPane().add(panel, BorderLayout.CENTER);//adding button in JFrame
+				frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	          
+				frame.setSize(600,600); //  tamanho padr�o 
+				frame.setVisible(true);//making the frame visible  
 			
 	}
+
+	private void prepareMenus() {
+		fileMenu.add(openMenuItem);
+		fileMenu.add(saveMenuItem);
+		editMenu.add(convoMenuItem);
+		editMenu.add(cropMenuItem);
+		editMenu.add(sepiaMenuItem);
+		
+		menuBar.add(fileMenu);
+		menuBar.add(editMenu);
+		menuBar.setSize(600, 20);
+		
+		openMenuItem.addActionListener(this);  //botar oq tem q fazer
+		saveMenuItem.addActionListener(this);
+		convoMenuItem.addActionListener(this);
+		cropMenuItem.addActionListener(this);
+		sepiaMenuItem.addActionListener(this);
+	}
+	
+	private void createCropMouseListener() {
+		CropMouseListener cropMouseListener = new CropMouseListener();
+		panel.addMouseListener(cropMouseListener);
+		panel.addMouseMotionListener(cropMouseListener);
+	}
+	
 	public void actionPerformed(ActionEvent ev){
 		if(ev.getSource() == openMenuItem){ // se veio do open
-			JFileChooser chooser = new JFileChooser();
-			chooser.setCurrentDirectory(new File("C:/Users/Felipe/Documents/GitHub/Trabalho3CG/Trabalho-3-CG")); // come�a no diret�rio do projeto. NAO SEI BOTAR DINAMICO
-		    FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif"); // filtro de extens�es
-		    chooser.setFileFilter(filter);
-		    int val = chooser.showOpenDialog(panel);
-		    if(val == JFileChooser.APPROVE_OPTION){
-			    File file = chooser.getSelectedFile();
-				
-				try {
-					image = ImageIO.read(file);
-				} catch (IOException e) {
-					image = null;
-					e.printStackTrace();
-				}
-				label = new JLabel(new ImageIcon(image)); // botando a imagem num label. ???? alguma coisa melhor pra isso ???? - tem que ter , �ocorro.
-				panel.add(label);
-				f.pack(); // resize
-				f.setVisible(true); // desenhar again pra botar a imagem
-			}else {
-				// se n�o selecionar imagem ?
-			}
-		    
+			openImage();
 		}
+		
 		if(ev.getSource() == saveMenuItem){
-			 JFileChooser c = new JFileChooser();
-		      // Demonstrate "Save" dialog:
-		      int rVal = c.showSaveDialog(panel);
-		      if (rVal == JFileChooser.APPROVE_OPTION) {
-		    	File file = c.getSelectedFile();
-		        filename.setText(c.getSelectedFile().getName());
-		        dir.setText(c.getCurrentDirectory().toString());
-		        File saveFile =  new File(file +".png");
-		        try {
-					ImageIO.write(image , "PNG" ,saveFile); // salvar em jpg vai com cores erradas
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}  	
-		      }
-		      if (rVal == JFileChooser.CANCEL_OPTION) {
-		        filename.setText("You pressed cancel");
-		        dir.setText("");
-		      }
+			 saveImage();
 		}
+		
 		if(ev.getSource() == convoMenuItem){
-			int filterSize =5;
-			int filterIterations = 1;
-			Convolucao convo = new Convolucao(image,filterSize ,filterIterations);
-			ArrayData[] array = convo.rodaFiltro();
-			JLabel label1 = null;
-			try {
-				image = convo.writeOutputImage(array);     // desenha a imagem nova tendo o array resultante da convolu��o
-				label1 = new JLabel(new ImageIcon(image)); //adiciona a imagem em outro label , ainda n�o gosto disso mas parece unica op��o
-			} catch (IOException e) {
-				// TODO Auto-generated catch block// n�o tinha imagem
-				System.out.println("Exception dps de tentar escrever a image no label");
-				e.printStackTrace();
-			} 
-			//panel.remove(label); // remover ou n�o a imagem original
-			panel.add(label1 , BorderLayout.CENTER);// botando a imagem num label. ?
-			f.pack(); // resize
-			f.setVisible(true); // desenhar again pra botar a imagem
+			applyConvoFilter();
+			updateImage();
+		}
+		
+		if(ev.getSource() == sepiaMenuItem){
+			applySepiaFilter();
+			updateImage();
 		}
 		
 		if(ev.getSource() ==  cropMenuItem){ // Not working
 			crop = true;
 		}
-		
-		if(ev.getSource() == sepiaMenuItem){
-			SepiaFilter sepiaFilter = new SepiaFilter(image);
-			int sepiaIntensity = 30 ;
-			int sepiaDepth = 20;
-			try {
-				image = sepiaFilter.writeOutputImageSepia(sepiaIntensity, sepiaDepth);
+	}
+
+	private void applyConvoFilter() {
+		int filterSize =5;
+		int filterIterations = 1;
+		Convolucao convo = new Convolucao(image,filterSize ,filterIterations);
+		ArrayData[] array = convo.rodaFiltro();
+		try {
+			image = convo.writeOutputImage(array);     // desenha a imagem nova tendo o array resultante da convolu��o
+		} catch (IOException e) {
+			// TODO Auto-generated catch block// n�o tinha imagem
+			System.out.println("Exception dps de tentar escrever a image no label");
+			e.printStackTrace();
+		}
+	}
+
+	private void applySepiaFilter() {
+		SepiaFilter sepiaFilter = new SepiaFilter(image);
+		int sepiaIntensity = 30 ;
+		int sepiaDepth = 20;
+		try {
+			image = sepiaFilter.writeOutputImageSepia(sepiaIntensity, sepiaDepth);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void updateImage() {
+		JLabel imageLabel = new JLabel(new ImageIcon(image)); //adiciona a imagem em outro label , ainda n�o gosto disso mas parece unica op��o
+		panel.add(imageLabel , BorderLayout.CENTER);// botando a imagem num label. ?
+		frame.pack(); // resize
+		frame.setVisible(true); // desenhar again pra botar a imagem
+	}
+
+	private void saveImage() {
+		JFileChooser c = new JFileChooser();
+		  // Demonstrate "Save" dialog:
+		  int rVal = c.showSaveDialog(panel);
+		  if (rVal == JFileChooser.APPROVE_OPTION) {
+			File file = c.getSelectedFile();
+		    filename.setText(c.getSelectedFile().getName());
+		    dir.setText(c.getCurrentDirectory().toString());
+		    File saveFile =  new File(file +".png");
+		    try {
+				ImageIO.write(image , "PNG" ,saveFile); // salvar em jpg vai com cores erradas
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			}  	
+		  }
+		  if (rVal == JFileChooser.CANCEL_OPTION) {
+		    filename.setText("You pressed cancel");
+		    dir.setText("");
+		  }
+	}
+
+	private void openImage() {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new File("C:/Users/Felipe/Documents/GitHub/Trabalho3CG/Trabalho-3-CG")); // come�a no diret�rio do projeto. NAO SEI BOTAR DINAMICO
+		FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif"); // filtro de extens�es
+		chooser.setFileFilter(filter);
+		int val = chooser.showOpenDialog(panel);
+		
+		if(val == JFileChooser.APPROVE_OPTION){
+		    File file = chooser.getSelectedFile();
+			
+			try {
+				image = ImageIO.read(file);
+			} catch (IOException e) {
+				image = null;
+				e.printStackTrace();
 			}
-			JLabel label3 = new JLabel(new ImageIcon(image));
-			panel.add(label3, BorderLayout.CENTER);
-			f.pack();
-			f.setVisible(true);
+			label = new JLabel(new ImageIcon(image)); // botando a imagem num label. ???? alguma coisa melhor pra isso ???? - tem que ter , �ocorro.
+			panel.add(label);
+			frame.pack(); // resize
+			frame.setVisible(true); // desenhar again pra botar a imagem
+		}else {
+			// se n�o selecionar imagem ?
 		}
 	}
 	
@@ -213,8 +238,8 @@ public class Window implements Runnable, ActionListener {
 			imageCrop = cropper.crop(image, startX, startY, endX, endY); // pegar events do mouse
 			JLabel label2 = new JLabel(new ImageIcon(imageCrop));
 			panel.add(label2);
-			f.pack();
-			f.setVisible(true);
+			frame.pack();
+			frame.setVisible(true);
 			
 			cropped= true;
 			crop = false;
