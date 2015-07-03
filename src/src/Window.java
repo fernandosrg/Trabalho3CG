@@ -27,7 +27,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import util.ArrayData;
 
 
-public class Window implements Runnable, ActionListener, MouseListener, MouseMotionListener   {  
+public class Window implements Runnable, ActionListener {  
 	JFrame f=new JFrame();//creating instance of JFrame 
 	
 	JMenuBar menuBar = new JMenuBar();
@@ -36,7 +36,7 @@ public class Window implements Runnable, ActionListener, MouseListener, MouseMot
 	
 	JMenuItem openMenuItem = new JMenuItem("Open");
 	JMenuItem saveMenuItem = new JMenuItem("Save");
-	JMenuItem convoMenuItem = new JMenuItem("Convolução");
+	JMenuItem convoMenuItem = new JMenuItem("Convoluï¿½ï¿½o");
 	JMenuItem cropMenuItem = new JMenuItem("Crop");
 	JMenuItem sepiaMenuItem = new JMenuItem("Sepia");
 	
@@ -57,12 +57,15 @@ public class Window implements Runnable, ActionListener, MouseListener, MouseMot
 	int endX = 0;
 	int endY = 0;
 	
+	boolean crop = false;
+	
 	boolean cropped = false;
 	
 	public static void main(String[] args) throws IOException {  
 			
 			SwingUtilities.invokeLater( new Window());
-		}
+	}
+	
 	public void run(){
 
 				//JButton b=new JButton("click");//creating instance of JButton  
@@ -73,6 +76,10 @@ public class Window implements Runnable, ActionListener, MouseListener, MouseMot
 				convoMenuItem.addActionListener(this);
 				cropMenuItem.addActionListener(this);
 				sepiaMenuItem.addActionListener(this);
+				
+				CropMouseListener cropMouseListener = new CropMouseListener();
+				panel.addMouseListener(cropMouseListener);
+				panel.addMouseMotionListener(cropMouseListener);
 				
 				panel.setSize(600,600);
 				
@@ -87,19 +94,19 @@ public class Window implements Runnable, ActionListener, MouseListener, MouseMot
 				menuBar.setSize(600, 20);
 				
 				f.setTitle("Trab 3 - Felipe e Fernando"); // goyzice
-				f.setLayout(new BorderLayout()); // sei la não sei oq é melhor
+				f.setLayout(new BorderLayout()); // sei la nï¿½o sei oq ï¿½ melhor
 				f.getContentPane().add(menuBar, BorderLayout.PAGE_START);
 				f.getContentPane().add(panel, BorderLayout.CENTER);//adding button in JFrame
 				f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);	          
-				f.setSize(600,600); //  tamanho padrão 
+				f.setSize(600,600); //  tamanho padrï¿½o 
 				f.setVisible(true);//making the frame visible  
 			
 	}
 	public void actionPerformed(ActionEvent ev){
 		if(ev.getSource() == openMenuItem){ // se veio do open
 			JFileChooser chooser = new JFileChooser();
-			chooser.setCurrentDirectory(new File("C:/Users/Felipe/Documents/GitHub/Trabalho3CG/Trabalho-3-CG")); // começa no diretório do projeto. NAO SEI BOTAR DINAMICO
-		    FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif"); // filtro de extensões
+			chooser.setCurrentDirectory(new File("C:/Users/Felipe/Documents/GitHub/Trabalho3CG/Trabalho-3-CG")); // comeï¿½a no diretï¿½rio do projeto. NAO SEI BOTAR DINAMICO
+		    FileNameExtensionFilter filter = new FileNameExtensionFilter("JPG & GIF Images", "jpg", "gif"); // filtro de extensï¿½es
 		    chooser.setFileFilter(filter);
 		    int val = chooser.showOpenDialog(panel);
 		    if(val == JFileChooser.APPROVE_OPTION){
@@ -111,12 +118,12 @@ public class Window implements Runnable, ActionListener, MouseListener, MouseMot
 					image = null;
 					e.printStackTrace();
 				}
-				label = new JLabel(new ImageIcon(image)); // botando a imagem num label. ???? alguma coisa melhor pra isso ???? - tem que ter , çocorro.
+				label = new JLabel(new ImageIcon(image)); // botando a imagem num label. ???? alguma coisa melhor pra isso ???? - tem que ter , ï¿½ocorro.
 				panel.add(label);
 				f.pack(); // resize
 				f.setVisible(true); // desenhar again pra botar a imagem
 			}else {
-				// se não selecionar imagem ?
+				// se nï¿½o selecionar imagem ?
 			}
 		    
 		}
@@ -148,32 +155,22 @@ public class Window implements Runnable, ActionListener, MouseListener, MouseMot
 			ArrayData[] array = convo.rodaFiltro();
 			JLabel label1 = null;
 			try {
-				image = convo.writeOutputImage(array);     // desenha a imagem nova tendo o array resultante da convolução
-				label1 = new JLabel(new ImageIcon(image)); //adiciona a imagem em outro label , ainda não gosto disso mas parece unica opção
+				image = convo.writeOutputImage(array);     // desenha a imagem nova tendo o array resultante da convoluï¿½ï¿½o
+				label1 = new JLabel(new ImageIcon(image)); //adiciona a imagem em outro label , ainda nï¿½o gosto disso mas parece unica opï¿½ï¿½o
 			} catch (IOException e) {
-				// TODO Auto-generated catch block// não tinha imagem
+				// TODO Auto-generated catch block// nï¿½o tinha imagem
 				System.out.println("Exception dps de tentar escrever a image no label");
 				e.printStackTrace();
 			} 
-			//panel.remove(label); // remover ou não a imagem original
+			//panel.remove(label); // remover ou nï¿½o a imagem original
 			panel.add(label1 , BorderLayout.CENTER);// botando a imagem num label. ?
 			f.pack(); // resize
 			f.setVisible(true); // desenhar again pra botar a imagem
 		}
+		
 		if(ev.getSource() ==  cropMenuItem){ // Not working
-			panel.addMouseListener(this);
-			panel.addMouseMotionListener(this);
-
-				//JCroppedImage cropper1 = new JCroppedImage(image);
-			
-				
-			if(cropped){
-				panel.removeMouseListener(this);
-				panel.removeMouseMotionListener(this);
-				cropped=false;
-			}
-			//image =cropper1.getImage();
-			}
+			crop = true;
+		}
 		
 		if(ev.getSource() == sepiaMenuItem){
 			SepiaFilter sepiaFilter = new SepiaFilter(image);
@@ -191,51 +188,53 @@ public class Window implements Runnable, ActionListener, MouseListener, MouseMot
 			f.setVisible(true);
 		}
 	}
-
-	// Métodos de mouse listener e mouse motion listener -- QUE AINDA NAO SERVEM PRA NADA :(
-	@Override
-	public void mouseClicked(MouseEvent e) {
-
-	}
-	@Override
-	public void mousePressed(MouseEvent e) {
-		System.out.println("cliquei o mouse");
-		this.startX = e.getX();
-		this.startY = e.getY();
-	}
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		this.endX = e.getX();
-		this.endY = e.getY();
-		Crop cropper = new Crop();
-		imageCrop = cropper.crop(image, startX, startY, endX, endY); // pegar events do mouse
-		JLabel label2 = new JLabel(new ImageIcon(imageCrop));
-		panel.add(label2);
-		f.pack();
-		f.setVisible(true);
-		cropped= true;
-	}
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 	
+	private class CropMouseListener implements MouseListener, MouseMotionListener {
+		private int startX;
+		private int startY;
+		
+		private int endX;
+		private int endY;
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			if (!crop) return;
+			
+			System.out.println("cliquei o mouse");
+			this.startX = e.getX();
+			this.startY = e.getY();
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			this.endX = e.getX();
+			this.endY = e.getY();
+			Crop cropper = new Crop();
+			imageCrop = cropper.crop(image, startX, startY, endX, endY); // pegar events do mouse
+			JLabel label2 = new JLabel(new ImageIcon(imageCrop));
+			panel.add(label2);
+			f.pack();
+			f.setVisible(true);
+			
+			cropped= true;
+			crop = false;
+		}
+		
+		@Override
+		public void mouseClicked(MouseEvent arg0) { }
+		
+		@Override
+		public void mouseEntered(MouseEvent arg0) { }
+		
+		@Override
+		public void mouseExited(MouseEvent arg0) { }
+
+		@Override
+		public void mouseDragged(MouseEvent e) { }
+
+		@Override
+		public void mouseMoved(MouseEvent e) { }
+	}
 	
 }  
 
