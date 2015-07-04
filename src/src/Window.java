@@ -225,32 +225,85 @@ public class Window implements Runnable, ActionListener {
 		
 		private int endX;
 		private int endY;
+		
+		private int offsetX;
+		private int offsetY;
+		
+		private boolean selecting;
+		
+		private boolean isInsideImage(int x, int y) {
+			int width = image.getWidth();
+			int height = image.getHeight();
+			
+			return x >= offsetX && y > offsetY &&
+				   x < (offsetX + width) && y < (offsetY + height);
+		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
 			if (!crop) return;
 			
-			System.out.println("cliquei o mouse");
+			calculateOffset();
+			
+			if (!isInsideImage(e.getX(), e.getY())) return;
+			
 			this.startX = e.getX();
 			this.startY = e.getY();
+			
+			selecting = true;
+		}
+
+		private void calculateOffset() {
+			if (lblCurrentImage.getIcon() != null) {
+				offsetX = lblCurrentImage.getX();
+				offsetY = lblCurrentImage.getY();
+			} else {
+				offsetX = lblOriginalImage.getX();
+				offsetY = lblOriginalImage.getY();
+			}
 		}
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (!crop) return;
+			if (!crop || !selecting) return;
 			
 			this.endX = e.getX();
 			this.endY = e.getY();
 			
 			previousImages.add(image);
 
-			Crop cropper = new Crop();
-			image = cropper.crop(image, startX, startY, endX, endY); // pegar events do mouse
+			crop();
 			
 			updateImage();
 			
 			cropped= true;
+			
+			selecting = false;
 			crop = false;
+		}
+
+		private void crop() {
+			Crop cropper = new Crop();
+			
+			int aX = startX - offsetX;
+			int aY = startY - offsetY;
+			
+			int bX = endX - offsetX;
+			int bY = endY - offsetY;
+
+			if (bX < 0) {
+				bX = 0;
+			} else if (bX > image.getWidth()) {
+				bX = image.getWidth() - 1;
+			}
+			
+			if (bY < 0) {
+				bY = 0;
+			} else if (bY > image.getHeight()) {
+				bY = image.getHeight() - 1;
+			}
+			
+			image = cropper.crop(image, aX, aY, bX, bY);
 		}
 		
 		@Override
