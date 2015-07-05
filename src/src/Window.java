@@ -39,9 +39,10 @@ public class Window implements Runnable, ActionListener {
 	private JMenuItem openMenuItem = new JMenuItem("Open");
 	private JMenuItem saveMenuItem = new JMenuItem("Save");
 	private JMenuItem undoMenuItem = new JMenuItem("Undo");
-	private JMenuItem convoMenuItem = new JMenuItem("Box");
+	private JMenuItem boxMenuItem = new JMenuItem("Box");
 	private JMenuItem cropMenuItem = new JMenuItem("Crop");
 	private JMenuItem sepiaMenuItem = new JMenuItem("Sepia");
+	private JMenuItem sobelMenuItem = new JMenuItem("Sobel");
 	
 	private JPanel panel = new JPanel();
 	
@@ -92,9 +93,10 @@ public class Window implements Runnable, ActionListener {
 		fileMenu.add(openMenuItem);
 		fileMenu.add(saveMenuItem);
 		editMenu.add(undoMenuItem);
-		editMenu.add(convoMenuItem);
+		editMenu.add(boxMenuItem);
 		editMenu.add(cropMenuItem);
 		editMenu.add(sepiaMenuItem);
+		editMenu.add(sobelMenuItem);
 		
 		undoMenuItem.setEnabled(false);
 		
@@ -105,9 +107,10 @@ public class Window implements Runnable, ActionListener {
 		openMenuItem.addActionListener(this);  //botar oq tem q fazer
 		saveMenuItem.addActionListener(this);
 		undoMenuItem.addActionListener(this);
-		convoMenuItem.addActionListener(this);
+		boxMenuItem.addActionListener(this);
 		cropMenuItem.addActionListener(this);
 		sepiaMenuItem.addActionListener(this);
+		sobelMenuItem.addActionListener(this);
 	}
 	
 	private void createCropMouseListener() {
@@ -130,7 +133,7 @@ public class Window implements Runnable, ActionListener {
 			updateImage();
 		}
 		
-		if(ev.getSource() == convoMenuItem){
+		if(ev.getSource() == boxMenuItem){
 			applyConvoFilter();
 			updateUndoMenu();
 			updateImage();
@@ -138,6 +141,12 @@ public class Window implements Runnable, ActionListener {
 		
 		if(ev.getSource() == sepiaMenuItem){
 			applySepiaFilter();
+			updateUndoMenu();
+			updateImage();
+		}
+		
+		if(ev.getSource() == sobelMenuItem){
+			applySobelFilter();
 			updateUndoMenu();
 			updateImage();
 		}
@@ -182,6 +191,18 @@ public class Window implements Runnable, ActionListener {
 			previousImages.add(image);
 			image = sepiaFilter.writeOutputImageSepia(sepiaIntensity, sepiaDepth);
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void applySobelFilter() {
+		SobelFilter convo = new SobelFilter(image);
+		ArrayData[] array = convo.rodaFiltro();
+		try {
+			previousImages.add(image);
+			image = convo.writeOutputImage(array);     // desenha a imagem nova tendo o array resultante da convolu��o
+		} catch (IOException e) {
+			System.out.println("Exception dps de tentar escrever a image no label");
 			e.printStackTrace();
 		}
 	}

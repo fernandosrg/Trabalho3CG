@@ -1,20 +1,19 @@
 package src;
 
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
 
 import util.ArrayData;
 
 public class Convolucao {
 	BufferedImage image;
 	ArrayData[] arrayData;
+	ArrayData filter;
 	int filterSize;
 	int filterIterations;
 	int filterNormalizer;
 	ImageToArrayData transformer;
+	
 	public Convolucao(BufferedImage image, int filterSize , int filterIterations){
 		this.image = image;
 		this.filterSize = filterSize;
@@ -22,8 +21,22 @@ public class Convolucao {
 		this.filterNormalizer=  filterSize*filterSize;
 		this.transformer =   new ImageToArrayData(image);
 		this.arrayData =  transformer.getArrayData();
+		
+		createFilter(filterSize);
 	}
-	public static ArrayData createFilter(int size)
+	
+	public Convolucao(BufferedImage image, ArrayData filter , int filterIterations){
+		this.image = image;
+		this.filterSize = filter.width;
+		this.filterIterations =  filterIterations;
+		this.filterNormalizer=  filterSize*filterSize;
+		this.transformer =   new ImageToArrayData(image);
+		this.arrayData =  transformer.getArrayData();
+		
+		this.filter = filter;
+	}
+	
+	public void createFilter(int size)
 	 {
 	    ArrayData filterArray = new ArrayData(size,size);
 	    int value = 1;
@@ -37,7 +50,8 @@ public class Convolucao {
 	      }
 	      //System.out.println("]");
 	    }
-	     return filterArray;
+	     
+	    filter = filterArray;
 	 }
 	
 	  private static int bound(int value, int endIndex)
@@ -48,10 +62,15 @@ public class Convolucao {
 	      return value;
 	    return endIndex - 1;
 	  }
-	public ArrayData convolute(ArrayData inputData){
+	  
+	  public ArrayData convolute(ArrayData inputData) {
+		  return convolute(inputData, this.filter);
+	  }
+	  
+	public ArrayData convolute(ArrayData inputData, ArrayData filter){
 		int inputWidth = inputData.width;
 	    int inputHeight = inputData.height;
-	    int filterSizeW = createFilter(filterSize).width;
+	    int filterSizeW = filter.width;
 	    if ((filterSizeW <= 0) || ((filterSizeW & 1) != 1))
 	      throw new IllegalArgumentException("Filtro precisa ter tamanho impar");
 	    int filterRadius = filterSizeW >>> 1;
@@ -65,7 +84,7 @@ public class Convolucao {
 	        double newValue = 0.0;
 	        for (int kw = filterSizeW - 1; kw >= 0; kw--)
 	          for (int kh = filterSizeW - 1; kh >= 0; kh--)
-	            newValue += createFilter(filterSizeW).get(kw, kh) * inputData.get(
+	            newValue += filter.get(kw, kh) * inputData.get(
 	                          bound(i + kw - filterRadius, inputWidth),
 	                          bound(j + kh - filterRadius, inputHeight));
 	        outputData.set(i, j, (int)Math.round(newValue / filterNormalizer));
@@ -73,31 +92,32 @@ public class Convolucao {
 	    }
 	    return outputData;
 	}
+	
 	public ArrayData[] rodaFiltro(){
 		for (int n = 0; n < filterIterations; n++)
 	        for (int i = 0; i < arrayData.length; i++)
 	            arrayData[i] = convolute(arrayData[i]);
 	    return arrayData;
 	}
-	  public BufferedImage writeOutputImage(ArrayData[] redGreenBlue) throws IOException
+	
+	public BufferedImage writeOutputImage(ArrayData[] redGreenBlue) throws IOException {
+	  ArrayData reds = redGreenBlue[0];
+	  ArrayData greens = redGreenBlue[1];
+	  ArrayData blues = redGreenBlue[2];
+	  BufferedImage outputImage = new BufferedImage(reds.width, reds.height,
+	                                                BufferedImage.TYPE_INT_ARGB);
+	  for (int y = 0; y < reds.height; y++)
 	  {
-	    ArrayData reds = redGreenBlue[0];
-	    ArrayData greens = redGreenBlue[1];
-	    ArrayData blues = redGreenBlue[2];
-	    BufferedImage outputImage = new BufferedImage(reds.width, reds.height,
-	                                                  BufferedImage.TYPE_INT_ARGB);
-	    for (int y = 0; y < reds.height; y++)
+	    for (int x = 0; x < reds.width; x++)
 	    {
-	      for (int x = 0; x < reds.width; x++)
-	      {
-	        int red = bound(reds.get(x, y), 256);
-	        int green = bound(greens.get(x, y), 256);
-	        int blue = bound(blues.get(x, y), 256);
-	        outputImage.setRGB(x, y, (red << 16) | (green << 8) | blue | -0x01000000);
-	      }
+	      int red = bound(reds.get(x, y), 256);
+	      int green = bound(greens.get(x, y), 256);
+	      int blue = bound(blues.get(x, y), 256);
+	      outputImage.setRGB(x, y, (red << 16) | (green << 8) | blue | -0x01000000);
 	    }
-	    
-	    return outputImage;
 	  }
+	  
+	  return outputImage;
+	}
 	
 }
