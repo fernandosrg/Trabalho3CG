@@ -148,13 +148,15 @@ public class Window implements Runnable, ActionListener {
 		}
 		
 		if(ev.getSource() == boxMenuItem){
-			applyBoxFilter();
+			int filterSize = FilterSizeDialog.showFilterSizeDialog(frame);
+			applyBoxFilter(filterSize);
 			updateUndoMenu();
 			updateImage();
 		}
 		
 		if(ev.getSource() == gaussianMenuItem){
-			applyGaussianFilter();
+			int filterSize = FilterSizeDialog.showFilterSizeDialog(frame);
+			applyGaussianFilter(filterSize);
 			updateUndoMenu();
 			updateImage();
 		}
@@ -174,6 +176,7 @@ public class Window implements Runnable, ActionListener {
 		if(ev.getSource() ==  cropMenuItem){ // Not working
 			crop = true;
 		}
+		
 		if(ev.getSource() == redFilterItem){
 			applyRedFilter();
 			updateUndoMenu();
@@ -204,8 +207,7 @@ public class Window implements Runnable, ActionListener {
 		}
 	}
 
-	private void applyBoxFilter() {
-		int filterSize = 5;
+	private void applyBoxFilter(int filterSize) {
 		int filterIterations = 1;
 		Convolucao convo = new Convolucao(image,filterSize ,filterIterations);
 		ArrayData[] array = convo.rodaFiltro();
@@ -218,8 +220,7 @@ public class Window implements Runnable, ActionListener {
 		}
 	}
 	
-	private void applyGaussianFilter() {
-		int filterSize = 5;
+	private void applyGaussianFilter(int filterSize) {
 		int filterIterations = 1;
 		
 		GaussianFilter gaussianFilter = new GaussianFilter(image,filterSize ,filterIterations);
