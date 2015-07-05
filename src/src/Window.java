@@ -44,6 +44,7 @@ public class Window implements Runnable, ActionListener {
 	private JMenuItem gaussianMenuItem = new JMenuItem("Gaussian");
 	private JMenuItem cropMenuItem = new JMenuItem("Crop");
 	private JMenuItem sepiaMenuItem = new JMenuItem("Sepia");
+	private JMenuItem grayscaleMenuItem = new JMenuItem("Grayscale");
 	private JMenuItem redFilterItem =  new JMenuItem("Red Filter");
 	private JMenuItem greenFilterItem =  new JMenuItem("Green Filter");
 	private JMenuItem blueFilterItem =  new JMenuItem("Blue Filter");
@@ -102,6 +103,7 @@ public class Window implements Runnable, ActionListener {
 		editMenu.add(gaussianMenuItem);
 		editMenu.add(cropMenuItem);
 		editMenu.add(sepiaMenuItem);
+		editMenu.add(grayscaleMenuItem);
 		colorFilterMenu.add(redFilterItem);
 		colorFilterMenu.add(greenFilterItem);
 		colorFilterMenu.add(blueFilterItem);
@@ -121,6 +123,7 @@ public class Window implements Runnable, ActionListener {
 		gaussianMenuItem.addActionListener(this);
 		cropMenuItem.addActionListener(this);
 		sepiaMenuItem.addActionListener(this);
+		grayscaleMenuItem.addActionListener(this);
 		redFilterItem.addActionListener(this);
 		greenFilterItem.addActionListener(this);
 		blueFilterItem.addActionListener(this);
@@ -163,6 +166,12 @@ public class Window implements Runnable, ActionListener {
 		
 		if(ev.getSource() == sepiaMenuItem){
 			applySepiaFilter();
+			updateUndoMenu();
+			updateImage();
+		}
+		
+		if(ev.getSource() == grayscaleMenuItem){
+			applyGrayscaleFilter();
 			updateUndoMenu();
 			updateImage();
 		}
@@ -241,6 +250,17 @@ public class Window implements Runnable, ActionListener {
 		try {
 			previousImages.add(image);
 			image = sepiaFilter.writeOutputImageSepia(sepiaIntensity, sepiaDepth);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void applyGrayscaleFilter() {
+		GrayscaleFilter grayscaleFilter = new GrayscaleFilter(image);
+		
+		try {
+			previousImages.add(image);
+			image = grayscaleFilter.writeOutputImageSepia();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
