@@ -45,6 +45,7 @@ public class Window implements Runnable, ActionListener {
 	private JMenuItem cropMenuItem = new JMenuItem("Crop");
 	private JMenuItem sepiaMenuItem = new JMenuItem("Sepia");
 	private JMenuItem grayscaleMenuItem = new JMenuItem("Grayscale");
+	private JMenuItem bwMenuItem = new JMenuItem("Black & White");
 	private JMenuItem redFilterItem =  new JMenuItem("Red Filter");
 	private JMenuItem greenFilterItem =  new JMenuItem("Green Filter");
 	private JMenuItem blueFilterItem =  new JMenuItem("Blue Filter");
@@ -104,6 +105,7 @@ public class Window implements Runnable, ActionListener {
 		editMenu.add(cropMenuItem);
 		editMenu.add(sepiaMenuItem);
 		editMenu.add(grayscaleMenuItem);
+		editMenu.add(bwMenuItem);
 		colorFilterMenu.add(redFilterItem);
 		colorFilterMenu.add(greenFilterItem);
 		colorFilterMenu.add(blueFilterItem);
@@ -124,6 +126,7 @@ public class Window implements Runnable, ActionListener {
 		cropMenuItem.addActionListener(this);
 		sepiaMenuItem.addActionListener(this);
 		grayscaleMenuItem.addActionListener(this);
+		bwMenuItem.addActionListener(this);
 		redFilterItem.addActionListener(this);
 		greenFilterItem.addActionListener(this);
 		blueFilterItem.addActionListener(this);
@@ -172,6 +175,12 @@ public class Window implements Runnable, ActionListener {
 		
 		if(ev.getSource() == grayscaleMenuItem){
 			applyGrayscaleFilter();
+			updateUndoMenu();
+			updateImage();
+		}
+		
+		if(ev.getSource() == bwMenuItem){
+			applyBWFilter();
 			updateUndoMenu();
 			updateImage();
 		}
@@ -261,6 +270,17 @@ public class Window implements Runnable, ActionListener {
 		try {
 			previousImages.add(image);
 			image = grayscaleFilter.writeOutputImageSepia();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void applyBWFilter() {
+		BlackAndWhiteFilter blackAndWhiteFilter = new BlackAndWhiteFilter(image);
+		
+		try {
+			previousImages.add(image);
+			image = blackAndWhiteFilter.writeOutputImageSepia();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
