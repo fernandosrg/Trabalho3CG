@@ -38,6 +38,7 @@ public class Window implements Runnable, ActionListener {
 	
 	private JMenuItem openMenuItem = new JMenuItem("Open");
 	private JMenuItem saveMenuItem = new JMenuItem("Save");
+	private JMenuItem undoMenuItem = new JMenuItem("Undo");
 	private JMenuItem convoMenuItem = new JMenuItem("Convolu��o");
 	private JMenuItem cropMenuItem = new JMenuItem("Crop");
 	private JMenuItem sepiaMenuItem = new JMenuItem("Sepia");
@@ -90,9 +91,12 @@ public class Window implements Runnable, ActionListener {
 	private void prepareMenus() {
 		fileMenu.add(openMenuItem);
 		fileMenu.add(saveMenuItem);
+		editMenu.add(undoMenuItem);
 		editMenu.add(convoMenuItem);
 		editMenu.add(cropMenuItem);
 		editMenu.add(sepiaMenuItem);
+		
+		undoMenuItem.setEnabled(false);
 		
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
@@ -100,6 +104,7 @@ public class Window implements Runnable, ActionListener {
 		
 		openMenuItem.addActionListener(this);  //botar oq tem q fazer
 		saveMenuItem.addActionListener(this);
+		undoMenuItem.addActionListener(this);
 		convoMenuItem.addActionListener(this);
 		cropMenuItem.addActionListener(this);
 		sepiaMenuItem.addActionListener(this);
@@ -120,18 +125,38 @@ public class Window implements Runnable, ActionListener {
 			 saveImage();
 		}
 		
+		if(ev.getSource() == undoMenuItem){
+			undoLastAction();
+			updateImage();
+		}
+		
 		if(ev.getSource() == convoMenuItem){
 			applyConvoFilter();
+			updateUndoMenu();
 			updateImage();
 		}
 		
 		if(ev.getSource() == sepiaMenuItem){
 			applySepiaFilter();
+			updateUndoMenu();
 			updateImage();
 		}
 		
 		if(ev.getSource() ==  cropMenuItem){ // Not working
 			crop = true;
+		}
+	}
+
+	private void undoLastAction() {
+		image = previousImages.remove(previousImages.size()-1);
+		updateUndoMenu();
+	}
+
+	private void updateUndoMenu() {
+		if (previousImages.isEmpty()) {
+			undoMenuItem.setEnabled(false);
+		} else {
+			undoMenuItem.setEnabled(true);
 		}
 	}
 
@@ -280,6 +305,8 @@ public class Window implements Runnable, ActionListener {
 			
 			selecting = false;
 			crop = false;
+			
+			updateUndoMenu();
 		}
 
 		private void crop() {
