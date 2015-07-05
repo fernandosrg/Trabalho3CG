@@ -35,6 +35,9 @@ public class Window implements Runnable, ActionListener {
 	private JMenuBar menuBar = new JMenuBar();
 	private JMenu fileMenu= new JMenu("File");
 	private JMenu editMenu= new JMenu("Edit");
+	private JMenu colorFilterMenu = new JMenu("Color Filter");
+	private JMenu alterConvoMatrizMenu = new JMenu("Convo Matriz");
+	
 	
 	private JMenuItem openMenuItem = new JMenuItem("Open");
 	private JMenuItem saveMenuItem = new JMenuItem("Save");
@@ -43,6 +46,9 @@ public class Window implements Runnable, ActionListener {
 	private JMenuItem gaussianMenuItem = new JMenuItem("Gaussian");
 	private JMenuItem cropMenuItem = new JMenuItem("Crop");
 	private JMenuItem sepiaMenuItem = new JMenuItem("Sepia");
+	private JMenuItem redFilterItem =  new JMenuItem("Red Filter");
+	private JMenuItem greenFilterItem =  new JMenuItem("Green Filter");
+	private JMenuItem blueFilterItem =  new JMenuItem("Blue Filter");
 	private JMenuItem sobelMenuItem = new JMenuItem("Sobel");
 	
 	private JPanel panel = new JPanel();
@@ -98,12 +104,17 @@ public class Window implements Runnable, ActionListener {
 		editMenu.add(gaussianMenuItem);
 		editMenu.add(cropMenuItem);
 		editMenu.add(sepiaMenuItem);
+		colorFilterMenu.add(redFilterItem);
+		colorFilterMenu.add(greenFilterItem);
+		colorFilterMenu.add(blueFilterItem);
 		editMenu.add(sobelMenuItem);
 		
 		undoMenuItem.setEnabled(false);
 		
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
+		menuBar.add(colorFilterMenu);
+		menuBar.add(alterConvoMatrizMenu);
 		menuBar.setSize(600, 20);
 		
 		openMenuItem.addActionListener(this);  //botar oq tem q fazer
@@ -113,6 +124,10 @@ public class Window implements Runnable, ActionListener {
 		gaussianMenuItem.addActionListener(this);
 		cropMenuItem.addActionListener(this);
 		sepiaMenuItem.addActionListener(this);
+		redFilterItem.addActionListener(this);
+		greenFilterItem.addActionListener(this);
+		blueFilterItem.addActionListener(this);
+		alterConvoMatrizMenu.addActionListener(this);
 		sobelMenuItem.addActionListener(this);
 	}
 	
@@ -163,6 +178,21 @@ public class Window implements Runnable, ActionListener {
 		if(ev.getSource() ==  cropMenuItem){ // Not working
 			crop = true;
 		}
+		if(ev.getSource() == redFilterItem){
+			applyRedFilter();
+			updateUndoMenu();
+			updateImage();
+		}
+		if(ev.getSource() == greenFilterItem){
+			applyGreenFilter();
+			updateUndoMenu();
+			updateImage();
+		}
+		if(ev.getSource() == blueFilterItem){
+			applyBlueFilter();
+			updateUndoMenu();
+			updateImage();
+		}	
 	}
 
 	private void undoLastAction() {
@@ -288,6 +318,26 @@ public class Window implements Runnable, ActionListener {
 			// se n�o selecionar imagem ?
 		}
 	}
+	private void applyRedFilter() {
+		ColorFilters redFilter = new ColorFilters(image);
+		previousImages.add(image);
+		image = redFilter.filterRed();
+		
+	}
+	
+	private void applyGreenFilter() {
+		ColorFilters greenFilter = new ColorFilters(image);
+		previousImages.add(image);
+		image = greenFilter.filterGreen();
+					
+	}
+
+	private void applyBlueFilter() {
+		ColorFilters blueFilter = new ColorFilters(image);
+		previousImages.add(image);
+		image = blueFilter.filterBlue();
+					
+	}
 	
 	private class CropMouseListener implements MouseListener, MouseMotionListener {
 		private int startX;
@@ -378,6 +428,7 @@ public class Window implements Runnable, ActionListener {
 			image = cropper.crop(image, aX, aY, bX, bY);
 		}
 		
+		
 		@Override
 		public void mouseClicked(MouseEvent arg0) { }
 		
@@ -395,4 +446,3 @@ public class Window implements Runnable, ActionListener {
 	}
 	
 }  
-
