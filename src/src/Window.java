@@ -35,9 +35,7 @@ public class Window implements Runnable, ActionListener {
 	private JMenuBar menuBar = new JMenuBar();
 	private JMenu fileMenu= new JMenu("File");
 	private JMenu editMenu= new JMenu("Edit");
-	private JMenu colorFilterMenu = new JMenu("Color Filter");
-	private JMenu alterConvoMatrizMenu = new JMenu("Convo Matriz");
-	
+	private JMenu colorFilterMenu = new JMenu("Color Filter");	
 	
 	private JMenuItem openMenuItem = new JMenuItem("Open");
 	private JMenuItem saveMenuItem = new JMenuItem("Save");
@@ -114,7 +112,6 @@ public class Window implements Runnable, ActionListener {
 		menuBar.add(fileMenu);
 		menuBar.add(editMenu);
 		menuBar.add(colorFilterMenu);
-		menuBar.add(alterConvoMatrizMenu);
 		menuBar.setSize(600, 20);
 		
 		openMenuItem.addActionListener(this);  //botar oq tem q fazer
@@ -127,7 +124,6 @@ public class Window implements Runnable, ActionListener {
 		redFilterItem.addActionListener(this);
 		greenFilterItem.addActionListener(this);
 		blueFilterItem.addActionListener(this);
-		alterConvoMatrizMenu.addActionListener(this);
 		sobelMenuItem.addActionListener(this);
 	}
 	
