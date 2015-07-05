@@ -323,11 +323,24 @@ public class Window implements Runnable, ActionListener {
 				e.printStackTrace();
 			}
 			
+			if (lblOriginalImage != null) {
+				lblOriginalImage.setVisible(false);
+				panel.remove(lblOriginalImage);
+			}
+			
+			if (lblCurrentImage != null) {
+				lblCurrentImage.setVisible(false);
+				panel.remove(lblCurrentImage);
+			}
+			
 			lblOriginalImage = new JLabel(new ImageIcon(image)); // botando a imagem original num label. ???? alguma coisa melhor pra isso ???? - tem que ter , �ocorro.
 			panel.add(lblOriginalImage);
 			
 			lblCurrentImage = new JLabel();
 			panel.add(lblCurrentImage , BorderLayout.CENTER);// botando a imagem atual num label.
+			
+			previousImages.clear();
+			updateUndoMenu();
 			
 			frame.pack(); // resize
 			frame.setVisible(true); // desenhar again pra botar a imagem
