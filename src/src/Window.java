@@ -40,6 +40,7 @@ public class Window implements Runnable, ActionListener {
 	private JMenuItem saveMenuItem = new JMenuItem("Save");
 	private JMenuItem undoMenuItem = new JMenuItem("Undo");
 	private JMenuItem boxMenuItem = new JMenuItem("Box");
+	private JMenuItem gaussianMenuItem = new JMenuItem("Gaussian");
 	private JMenuItem cropMenuItem = new JMenuItem("Crop");
 	private JMenuItem sepiaMenuItem = new JMenuItem("Sepia");
 	private JMenuItem sobelMenuItem = new JMenuItem("Sobel");
@@ -94,6 +95,7 @@ public class Window implements Runnable, ActionListener {
 		fileMenu.add(saveMenuItem);
 		editMenu.add(undoMenuItem);
 		editMenu.add(boxMenuItem);
+		editMenu.add(gaussianMenuItem);
 		editMenu.add(cropMenuItem);
 		editMenu.add(sepiaMenuItem);
 		editMenu.add(sobelMenuItem);
@@ -108,6 +110,7 @@ public class Window implements Runnable, ActionListener {
 		saveMenuItem.addActionListener(this);
 		undoMenuItem.addActionListener(this);
 		boxMenuItem.addActionListener(this);
+		gaussianMenuItem.addActionListener(this);
 		cropMenuItem.addActionListener(this);
 		sepiaMenuItem.addActionListener(this);
 		sobelMenuItem.addActionListener(this);
@@ -134,7 +137,13 @@ public class Window implements Runnable, ActionListener {
 		}
 		
 		if(ev.getSource() == boxMenuItem){
-			applyConvoFilter();
+			applyBoxFilter();
+			updateUndoMenu();
+			updateImage();
+		}
+		
+		if(ev.getSource() == gaussianMenuItem){
+			applyGaussianFilter();
 			updateUndoMenu();
 			updateImage();
 		}
@@ -169,14 +178,29 @@ public class Window implements Runnable, ActionListener {
 		}
 	}
 
-	private void applyConvoFilter() {
-		int filterSize =5;
+	private void applyBoxFilter() {
+		int filterSize = 5;
 		int filterIterations = 1;
 		Convolucao convo = new Convolucao(image,filterSize ,filterIterations);
 		ArrayData[] array = convo.rodaFiltro();
 		try {
 			previousImages.add(image);
 			image = convo.writeOutputImage(array);     // desenha a imagem nova tendo o array resultante da convolu��o
+		} catch (IOException e) {
+			System.out.println("Exception dps de tentar escrever a image no label");
+			e.printStackTrace();
+		}
+	}
+	
+	private void applyGaussianFilter() {
+		int filterSize = 5;
+		int filterIterations = 1;
+		
+		GaussianFilter gaussianFilter = new GaussianFilter(image,filterSize ,filterIterations);
+		ArrayData[] array = gaussianFilter.rodaFiltro();
+		try {
+			previousImages.add(image);
+			image = gaussianFilter.writeOutputImage(array);     // desenha a imagem nova tendo o array resultante da convolu��o
 		} catch (IOException e) {
 			System.out.println("Exception dps de tentar escrever a image no label");
 			e.printStackTrace();

@@ -29,11 +29,18 @@ public class Convolucao {
 		this.image = image;
 		this.filterSize = filter.width;
 		this.filterIterations =  filterIterations;
-		this.filterNormalizer=  filterSize*filterSize;
 		this.transformer =   new ImageToArrayData(image);
 		this.arrayData =  transformer.getArrayData();
 		
+		calculateFilterNormalizer();
+		
 		this.filter = filter;
+	}
+
+	protected void calculateFilterNormalizer() {
+		filterNormalizer = 0;
+		for (int v : filter.dataArray)
+			filterNormalizer += v;
 	}
 	
 	public void createFilter(int size)
