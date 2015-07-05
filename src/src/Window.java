@@ -39,7 +39,7 @@ public class Window implements Runnable, ActionListener {
 	private JMenuItem openMenuItem = new JMenuItem("Open");
 	private JMenuItem saveMenuItem = new JMenuItem("Save");
 	private JMenuItem undoMenuItem = new JMenuItem("Undo");
-	private JMenuItem convoMenuItem = new JMenuItem("Convolu��o");
+	private JMenuItem convoMenuItem = new JMenuItem("Box");
 	private JMenuItem cropMenuItem = new JMenuItem("Crop");
 	private JMenuItem sepiaMenuItem = new JMenuItem("Sepia");
 	
