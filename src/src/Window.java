@@ -50,6 +50,7 @@ public class Window implements Runnable, ActionListener {
 	private JMenuItem greenFilterItem =  new JMenuItem("Green Filter");
 	private JMenuItem blueFilterItem =  new JMenuItem("Blue Filter");
 	private JMenuItem sobelMenuItem = new JMenuItem("Sobel");
+	private JMenuItem c256MenuItem = new JMenuItem("256 Colors");
 	
 	private JPanel panel = new JPanel();
 	
@@ -106,10 +107,11 @@ public class Window implements Runnable, ActionListener {
 		editMenu.add(sepiaMenuItem);
 		editMenu.add(grayscaleMenuItem);
 		editMenu.add(bwMenuItem);
+		editMenu.add(sobelMenuItem);
+		editMenu.add(c256MenuItem);
 		colorFilterMenu.add(redFilterItem);
 		colorFilterMenu.add(greenFilterItem);
 		colorFilterMenu.add(blueFilterItem);
-		editMenu.add(sobelMenuItem);
 		
 		undoMenuItem.setEnabled(false);
 		
@@ -127,10 +129,12 @@ public class Window implements Runnable, ActionListener {
 		sepiaMenuItem.addActionListener(this);
 		grayscaleMenuItem.addActionListener(this);
 		bwMenuItem.addActionListener(this);
+		sobelMenuItem.addActionListener(this);
+		c256MenuItem.addActionListener(this);
+		
 		redFilterItem.addActionListener(this);
 		greenFilterItem.addActionListener(this);
 		blueFilterItem.addActionListener(this);
-		sobelMenuItem.addActionListener(this);
 	}
 	
 	private void createCropMouseListener() {
@@ -187,6 +191,12 @@ public class Window implements Runnable, ActionListener {
 		
 		if(ev.getSource() == sobelMenuItem){
 			applySobelFilter();
+			updateUndoMenu();
+			updateImage();
+		}
+		
+		if(ev.getSource() == c256MenuItem){
+			apply256Filter();
 			updateUndoMenu();
 			updateImage();
 		}
@@ -281,6 +291,17 @@ public class Window implements Runnable, ActionListener {
 		try {
 			previousImages.add(image);
 			image = blackAndWhiteFilter.writeOutputImageSepia();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void apply256Filter() {
+		Colors256Filter colors256Filter = new Colors256Filter(image);
+		
+		try {
+			previousImages.add(image);
+			image = colors256Filter.writeOutputImageSepia();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
